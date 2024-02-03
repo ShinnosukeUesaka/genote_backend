@@ -18,13 +18,13 @@ from genote_llm.firebase_utils import db, bucket
 import uuid
 import json
 from elevenlabs import generate, play
-from elevenlabs import set_api_key
+# from elevenlabs import set_api_key
 from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from icrawler.builtin import GoogleImageCrawler
 
-set_api_key(os.environ.get("XI_API_KEY"))
+# set_api_key(os.environ.get("XI_API_KEY"))
 
 client = OpenAI()
 
@@ -42,11 +42,33 @@ app.add_middleware(
 
 class Message(BaseModel):
     message: str
-
+    
+class DraftInput(BaseModel):
+    text: str
+    
 # test endpoint
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+@app.get("/users/{user_id}/notes")
+def read_notes(user_id: str, skip: int = 0, limit: int = 10):
+    notes = db.collection("users").document(user_id).collection("notes").stream()
+    return [{"id": note.id, "data": note.to_dict()} for note in notes]
+
+@app.get("/users/{user_id}/notes/{note_id}")
+def read_notes(user_id: str, note_id: str):
+    note = db.collection("users").document(user_id).collection("notes").document(note_id).get()
+    return note.to_dict()
+
+@app.post("/users/{user_id}/draft")
+def add_notes(user_id: str, draft_input: DraftInput):
+    draft = {
+        "text": draft_input.text,
+        "created_at": datetime.datetime.now()
+    }
+    db.collection("users").document(user_id).collection("drafts").add(draft)
+    return draft
 
 @app.post("/conversations")
 def create_conversation():
