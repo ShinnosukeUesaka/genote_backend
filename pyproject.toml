@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "genote-llm-backend"
+version = "0.1.0"
+description = "'"
+authors = ["ShinnosukeUesaka <shinnosuke.uesaka@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+firebase-admin = "^6.3.0"
+fastapi = "^0.109.0"
+openai = "^1.8.0"
+python-dotenv = "^1.0.0"
+uvicorn = "^0.26.0"
+elevenlabs = "^0.2.27"
+icrawler = "^0.6.7"
+pillow = "^10.2.0"
+beautifulsoup4 = "^4.12.3"
+lxml = "^5.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
