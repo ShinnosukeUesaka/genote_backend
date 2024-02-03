@@ -1,0 +1,2 @@
+# genote-backend
+RAG hackathon
