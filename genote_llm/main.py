@@ -54,7 +54,7 @@ class InitialNote(BaseModel):
     order: int
     
 class InitialNotesInput(BaseModel):
-    notes: list[NoteInput]
+    notes: list[InitialNote]
     
 
 # test endpoint
