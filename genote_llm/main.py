@@ -73,7 +73,7 @@ def add_notes(user_id: str, draft_input: DraftInput):
     draft = draft_input.text.strip()
     notes_stream = db.collection("users").document(user_id).collection("notes").stream()
     # Do RAG here.
-    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
+    notes = [note.to_dict() for note in notes_stream]
     actions = create_actions(draft, notes)
     for action in actions:
         if action["method"] == "edit":
