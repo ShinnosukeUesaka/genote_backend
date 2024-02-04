@@ -203,19 +203,56 @@ Output must be json that follows the following schema. Output should not be the 
 }
 """
 
+# ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by editing existing notes, and/or creating notes.
+
+# - Edit or add as many notes as necessary.
+# - Make sure you are correctly specifying the names of the titles.
+# - Connect ideas by adding links to other notes with square brackets ex. [Title of the note] to connect and reference ideas.  Start by concisely explaining how ideas in the user's draft can be linked together in less than 2 sentences.
+# - The link should be bidirectional , meaning both ideas should reference each other. Not just one.
+# - Make sure to add new lines with backslash n in the markdown.
+
+# You output should be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
+# {
+#     "type": "object",
+#     "properties": {
+#         "link_explanation": {"type": "string"}
+#         "actions": {
+#             "type": "array",
+#             "items": {
+#                 "type": "object",
+#                 "properties": {
+#                     "method": { 
+#                         "type": "string",
+#                         "enum": ["edit", "add"]
+#                     },
+#                     "title": {
+#                         "type": "string"
+#                     },
+#                     "content": {
+#                         "type": "string",
+#                         "format": "markdown",
+#                         "description": "The full markdown containing added contents and original contents."
+#                     }
+#                 }
+#             }
+#         }
+#     }
+# }"""
+
 ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by editing existing notes, and/or creating notes.
 
 - Edit or add as many notes as necessary.
 - Make sure you are correctly specifying the names of the titles.
-- Connect ideas by adding links to other notes with square brackets ex. [Title of the note] to connect and reference ideas.  Start by concisely explaining how ideas in the user's draft can be linked together in less than 2 sentences.
-- The link should be bidirectional , meaning both ideas should reference each other. Not just one.
+- Connect ideas by adding links to other notes with square brackets ex. [Backlink name](title) to connect and reference ideas.
 - Make sure to add new lines with backslash n in the markdown.
+- Start with explaining your organization strategy. For each of the thoughts, explain if you are going to create a new note and/or edit existing notes. You should not create new notes if it is not necessary. Include where to add backlinks.
+- You should format and cleanup the user's draft, or make it whole sentence. However do not add too much additional information.
 
 You output should be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
 {
     "type": "object",
     "properties": {
-        "link_explanation": {"type": "string"}
+        "organization_explanation": {"type": "string"}
         "actions": {
             "type": "array",
             "items": {
@@ -240,60 +277,47 @@ You output should be json that follows the following schema. Output should not b
 }"""
 
 def create_actions(draft: str, notes: list[dict]):
-    titles_prompt = ""
-    for index, note in enumerate(notes):
-        titles_prompt += f"{index+1}. {note['data']['title']}\n"
+#     titles_prompt = ""
+#     for index, note in enumerate(notes):
+#         titles_prompt += f"{index+1}. {note['data']['title']}\n"
     
-    user_prompt = f"""[User's Draft]
+#     user_prompt = f"""[User's Draft]
+# ""
+# {draft}
+# ""
+
+# [Notes that are potentially relevant to the user's draft]
+# {titles_prompt}
+# """
+#     print(user_prompt) 
+#     response = client.chat.completions.create(
+#         model="gpt-4-1106-preview",
+#         response_format={ "type": "json_object" },
+#         messages=[
+#             {"role": "system", "content": CHOOSE_NOTES_PROMPT},
+#             {"role": "user", "content": user_prompt}
+#         ],
+#         max_tokens=2000,
+#     )
+#     result = response.choices[0].message.content # this is json in string
+#     returned_dictionary =  json.loads(result)
+#     print(returned_dictionary)
+    
+    current_notes_prompt = ""
+    for note in notes:
+        current_notes_prompt += f"""{note["data"]['title']}
 ""
-{draft}
+{note["data"]['content']}
 ""
 
-[Notes that are potentially relevant to the user's draft]
-{titles_prompt}
-"""
-    print(user_prompt) 
-    response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
-        response_format={ "type": "json_object" },
-        messages=[
-            {"role": "system", "content": CHOOSE_NOTES_PROMPT},
-            {"role": "user", "content": user_prompt}
-        ],
-        max_tokens=2000,
-    )
-    result = response.choices[0].message.content # this is json in string
-    returned_dictionary =  json.loads(result)
-    print(returned_dictionary)
-    
-    notes_list_prompt = ""
-    current_notes_prompt = ""
-    for action in returned_dictionary["actions"]:
-        if action["method"] == "edit":
-            edit_note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
-            if not edit_note:
-                print("Note not found creating new one.")
-                action["content"] = "add"
-                notes_list_prompt += f"- {action['title']} [Add]\n"
-                
-            else:
-                notes_list_prompt += f"- {action['title']} [Edit]\n"
-                current_notes_prompt += f"""{action['title']}
-""
-{edit_note["data"]['content']}
-""
 
 """ 
-        else:
-            notes_list_prompt += f"- {action['title']} [Add]\n"
-        
+
+
     user_prompt = f"""[user's draft]
 ""
 {draft}
 ""
-
-[Notes you can add or edit]
-{notes_list_prompt}
 
 [Current data of the notes]
 {current_notes_prompt}
@@ -367,4 +391,4 @@ def create_tts(text: str, voice: str = "Bill", model: str = "eleven_turbo_v2"):
 
 
 if __name__ == "__main__":
-    print(create_actions("I went to school", [{"id": "1", "data": {"title": "School", "content": "I went to school"}}]))
+    print(create_actions("I went to school", [{"id": "1", "data": {"title": "School", "content": "I went to school today it was fun."}}]))
