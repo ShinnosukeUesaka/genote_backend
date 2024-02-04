@@ -44,6 +44,9 @@ app.add_middleware(
 class DraftInput(BaseModel):
     text: str
     
+class NoteInput(BaseModel):
+    title: str
+    content: str
 # test endpoint
 @app.get("/")
 def read_root():
@@ -53,6 +56,11 @@ def read_root():
 def read_notes(user_id: str, skip: int = 0, limit: int = 10):
     notes = db.collection("users").document(user_id).collection("notes").stream()
     return [{"id": note.id, "data": note.to_dict()} for note in notes]
+
+@app.post("/users/{user_id}/notes")
+def add_notes(user_id: str, note_input: NoteInput):
+    note = db.collection("users").document(user_id).collection("notes").add({"title": note_input.title, "content": note_input.content})
+    return note[1].id
 
 @app.get("/users/{user_id}/notes/{note_id}")
 def read_notes(user_id: str, note_id: str):
