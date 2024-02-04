@@ -136,10 +136,8 @@ def add_notes(user_id: str, draft_input: DraftInput):
     notes_stream = db.collection("users").document(user_id).collection("notes").stream()
     note_ids = get_notes_most_relevant(draft, top_k=5)
     print(note_ids)
-    if len(note_ids) == 0:
-        notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
-    else:
-        notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream if note.id in note_ids]
+    # fix note ids
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream if note.id in note_ids]
     actions = create_actions(draft, notes)
     for index, action in enumerate(actions):
         # search for [title], then replace with [title](id), id is the firebase id of the note
