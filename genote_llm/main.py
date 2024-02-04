@@ -69,7 +69,6 @@ def create_user(inital_notes_input: InitialNotesInput):
     notes = inital_notes_input.notes
     for note in notes:
         user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
-    user_ref.set({"notes": inital_notes_input.notes})
     return user_id
 
 @app.get("/users/{user_id}/notes")
