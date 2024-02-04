@@ -73,7 +73,7 @@ def add_notes(user_id: str, draft_input: DraftInput):
     draft = draft_input.text.strip()
     notes_stream = db.collection("users").document(user_id).collection("notes").stream()
     # Do RAG here.
-    notes = [note.to_dict() for note in notes_stream]
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes]
     actions = create_actions(draft, notes)
     for action in actions:
         if action["method"] == "edit":
@@ -156,7 +156,7 @@ You output should be json that follows the following schema. Output should not b
 def create_actions(draft: str, notes: list[dict]):
     titles_prompt = ""
     for index, note in enumerate(notes):
-        titles_prompt += f"{index+1}. {note['title']}\n"
+        titles_prompt += f"{index+1}. {note['data']['title']}\n"
     
     user_prompt = f"""[User's Draft]
 ""
@@ -184,7 +184,7 @@ def create_actions(draft: str, notes: list[dict]):
     current_notes_prompt = ""
     for action in returned_dictionary["actions"]:
         if action["method"] == "edit":
-            edit_note = next((note for note in notes if note["title"] == action["title"]), None)
+            edit_note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
             if not edit_note:
                 print("Note not found creating new one.")
                 action["content"] = "add"
@@ -281,4 +281,4 @@ def create_tts(text: str, voice: str = "Bill", model: str = "eleven_turbo_v2"):
 
 
 if __name__ == "__main__":
-    print(create_actions("I went to school", [{"title": "Diary", "content": "I went to see a movie today"}]))
+    print(create_actions("I went to school", [{"id": "1", "data": {"title": "School", "content": "I went to school"}}]))
