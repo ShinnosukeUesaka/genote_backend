@@ -43,10 +43,11 @@ def add_notes_to_rag(notes: list[dict]):
     )
 
 def update_note_to_rag(note: dict):
-    node = TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"])
-    index = VectorStoreIndex.from_vector_store(vector_store=astra_db_store)
-    index._delete_node(note["id"])
-    index = VectorStoreIndex(
-        [node], storage_context=storage_context
-    )
+    # node = TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"])
+    # index = VectorStoreIndex.from_vector_store(vector_store=astra_db_store)
+    # index._delete_node(note["id"])
+    # index = VectorStoreIndex(
+    #     [node], storage_context=storage_context
+    # )
+    pass
     
