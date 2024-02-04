@@ -47,10 +47,29 @@ class DraftInput(BaseModel):
 class NoteInput(BaseModel):
     title: str
     content: str
+
+class InitialNote(BaseModel):
+    title: str
+    content: str
+    order: str
+    
+class InitialNotesInput(BaseModel):
+    notes: list[NoteInput]
+
 # test endpoint
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+@app.post("/users")
+def create_user(inital_notes_input: InitialNotesInput):
+    user_id = str(uuid.uuid4())
+    user_ref = db.collection("users").document(user_id)
+    notes = inital_notes_input.notes
+    for note in notes:
+        user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
+    user_ref.set({"notes": inital_notes_input.notes})
+    return user_id
 
 @app.get("/users/{user_id}/notes")
 def read_notes(user_id: str, skip: int = 0, limit: int = 10):
@@ -104,7 +123,7 @@ def add_notes(user_id: str, draft_input: DraftInput):
             db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
     
     for note in notes:
-        if note["data"]["status"] == "original":
+        if note["data"]["status"] == "reviewed":
             notes_in_oder.append(note)
             db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
     
