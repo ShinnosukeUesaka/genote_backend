@@ -74,8 +74,9 @@ def create_user(inital_notes_input: InitialNotesInput):
     initial_notes = inital_notes_input.notes
     notes = []
     for note in initial_notes:
-        node_doc = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
-        notes.append({"id": node_doc[1].id, "data": node_doc[1].to_dict()})
+        note = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
+        note = note[1].get()
+        notes.append({"id": note.id, "data": note.to_dict()})
     add_notes_to_rag(notes)
     return user_id
 
@@ -87,8 +88,8 @@ def read_notes(user_id: str, skip: int = 0, limit: int = 10):
 
 @app.post("/users/{user_id}/notes")
 def add_notes(user_id: str, note_input: NoteInput):
-    note = db.collection("users").document(user_id).collection("notes").add({"title": note_input.title, "content": note_input.content})
-    add_notes_to_rag([{"id": note[1].id, "data": note[1].to_dict()}])
+    note = db.collection("users").document(user_id).collection("notes").add({"title": note_input.title, "content": note_input.content})[1].get()
+    note = {"id": note.id, "data": note.to_dict()}
     return note[1].id
 
 def get_notes_in_order(user_id: str):
@@ -150,15 +151,15 @@ def add_notes(user_id: str, draft_input: DraftInput):
             note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
             if not note:
                 print("Note not found creating new one.")
-                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
-                add_notes_to_rag([{"id": note[1].id, "data": note[1].to_dict()}])
+                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})[1].get()
+                add_notes_to_rag([{"id": note.id, "data": note.to_dict()}])
             else:
                 note = db.collection("users").document(user_id).collection("notes").document(note["id"])
                 note.update({"content": action["content"], "status": "edited", "order": -1})
                 update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
         elif action["method"] == "add":
-            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
-            update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
+            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})[1].get()
+            add_note_to_rag({"id": note.id, "data": note.to_dict()})
         else:
             print("Invalid action")
     
