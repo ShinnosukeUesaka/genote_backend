@@ -66,6 +66,7 @@ def read_root():
 def create_user(inital_notes_input: InitialNotesInput):
     user_id = str(uuid.uuid4())
     user_ref = db.collection("users").document(user_id)
+    user_ref.set({"created_at": datetime.datetime.now()})
     notes = inital_notes_input.notes
     for note in notes:
         user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
