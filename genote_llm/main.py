@@ -245,7 +245,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 
 - Edit or add as many notes as necessary.
 - Make sure you are correctly specifying the names of the titles.
-- Connect ideas by adding links to other notes with square brackets ex. [Backlink name](title) to connect and reference ideas.
+- Connect ideas by adding links to other notes with square brackets ex. [Title]() to connect and reference ideas. Make sure that  () is empty, and the title is spelled correctly.
 - Make sure to add new lines with backslash n in the markdown.
 - Start with explaining your organization strategy. For each of the thoughts, explain if you are going to create a new note and/or edit existing notes. You should not create new notes if it is not necessary. Include where to add backlinks.
 - You should format and cleanup the user's draft, or make it whole sentence. However do not add too much additional information.
