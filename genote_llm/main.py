@@ -80,12 +80,14 @@ def add_notes(user_id: str, draft_input: DraftInput):
             note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
             if not note:
                 print("Note not found creating new one.")
-                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "draft"})
+                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added"})
             else:
                 note = db.collection("users").document(user_id).collection("notes").document(note["id"])
-                note.update({"content": action["content"]})
+                note.update({"content": action["content"], "status": "edited"})
+        elif action["method"] == "add":
+            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added"})
         else:
-            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"]})
+            print("Invalid action")
 
 
 CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by either editing existing notes, creating notes.
