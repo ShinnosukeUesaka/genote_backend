@@ -250,7 +250,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - Start with explaining your organization strategy. For each of the thoughts, explain if you are going to create a new note and/or edit existing notes. Include where to add backlinks.
 - You should format and cleanup the user's draft, or make it whole sentence. However do not add too much additional information.
 
-You output should be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
+You output should be json that follows the following schema. Output should NOT be the schema itself, but the json object that follows the schema. Start with {"actions": [...
 {
     "type": "object",
     "properties": {
