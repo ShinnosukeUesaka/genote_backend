@@ -195,7 +195,7 @@ def create_actions(draft: str, notes: list[dict]):
                 notes_list_prompt += f"- {action['title']} [Edit]\n"
                 current_notes_prompt += f"""{action['title']}
 ""
-{edit_note['content']}
+{edit_note["data"]['content']}
 ""
 
 """ 
