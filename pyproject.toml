@@ -17,7 +17,12 @@ icrawler = "^0.6.7"
 pillow = "^10.2.0"
 beautifulsoup4 = "^4.12.3"
 lxml = "^5.1.0"
+llama-index = "^0.9.43"
+astrapy = "^0.7.3"
 
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.0.12"
 
 [build-system]
 requires = ["poetry-core"]

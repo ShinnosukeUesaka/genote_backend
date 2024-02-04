@@ -14,7 +14,10 @@ from tempfile import TemporaryDirectory
 
 import os
 import datetime
+
 from genote_llm.firebase_utils import db, bucket
+from genote_llm.rag import add_notes_to_rag, get_notes_most_relevant, update_note_to_rag
+
 import uuid
 import json
 from elevenlabs import generate, play
@@ -74,12 +77,14 @@ def create_user(inital_notes_input: InitialNotesInput):
 
 @app.get("/users/{user_id}/notes")
 def read_notes(user_id: str, skip: int = 0, limit: int = 10):
+
     notes = db.collection("users").document(user_id).collection("notes").stream()
     return [{"id": note.id, "data": note.to_dict()} for note in notes]
 
 @app.post("/users/{user_id}/notes")
 def add_notes(user_id: str, note_input: NoteInput):
     note = db.collection("users").document(user_id).collection("notes").add({"title": note_input.title, "content": note_input.content})
+    add_notes_to_rag([{"id": note[1].id, "data": note[1].to_dict()}])
     return note[1].id
 
 def get_notes_in_order(user_id: str):
@@ -119,8 +124,8 @@ def add_notes(user_id: str, draft_input: DraftInput):
     # get all the notes of the user
     draft = draft_input.text.strip()
     notes_stream = db.collection("users").document(user_id).collection("notes").stream()
-    # Do RAG here.
-    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
+    note_ids = get_notes_most_relevant(draft, top_k=5)
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream if note.id in note_ids]
     actions = create_actions(draft, notes)
     for action in actions:
         if action["method"] == "edit":
@@ -128,11 +133,14 @@ def add_notes(user_id: str, draft_input: DraftInput):
             if not note:
                 print("Note not found creating new one.")
                 note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
+                add_notes_to_rag([{"id": note[1].id, "data": note[1].to_dict()}])
             else:
                 note = db.collection("users").document(user_id).collection("notes").document(note["id"])
                 note.update({"content": action["content"], "status": "edited", "order": -1})
+                update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
         elif action["method"] == "add":
             note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
+            update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
         else:
             print("Invalid action")
     
