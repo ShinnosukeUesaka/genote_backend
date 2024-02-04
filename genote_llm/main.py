@@ -124,6 +124,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - Make sure you are correctly specifying the names of the titles.
 - Connect ideas by adding links to other notes with square brackets ex. [Title of the note] to connect and reference ideas.  Start by concisely explaining how ideas in the user's draft can be linked together in less than 2 sentences.
 - The link should be bidirectional , meaning both ideas should reference each other. Not just one.
+- Make sure to add new lines with backslash n in the markdown.
 
 You output should be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
 {
