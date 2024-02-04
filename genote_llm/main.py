@@ -85,7 +85,7 @@ def read_notes(user_id: str, skip: int = 0, limit: int = 10):
     notes = db.collection("users").document(user_id).collection("notes").stream()
     return [{"id": note.id, "data": note.to_dict()} for note in notes]
 
-@app.post("/users/{user_id}/notes/from-title/{title}")
+@app.get("/users/{user_id}/notes/from-title/{title}")
 def read_notes(user_id: str, title: str):
     notes = db.collection("users").document(user_id).collection("notes").where("title", "==", title).get()
     note = notes[0]
