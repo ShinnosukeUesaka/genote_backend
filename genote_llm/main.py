@@ -74,8 +74,7 @@ def create_user(inital_notes_input: InitialNotesInput):
     initial_notes = inital_notes_input.notes
     notes = []
     for note in initial_notes:
-        note = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})
-        note = note[1].get()
+        note = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})[1].get()
         notes.append({"id": note.id, "data": note.to_dict()})
     add_notes_to_rag(notes)
     return user_id
@@ -159,7 +158,7 @@ def add_notes(user_id: str, draft_input: DraftInput):
                 update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
         elif action["method"] == "add":
             note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})[1].get()
-            add_note_to_rag({"id": note.id, "data": note.to_dict()})
+            add_notes_to_rag([{"id": note.id, "data": note.to_dict()}])
         else:
             print("Invalid action")
     
