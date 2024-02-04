@@ -51,10 +51,11 @@ class NoteInput(BaseModel):
 class InitialNote(BaseModel):
     title: str
     content: str
-    order: str
+    order: int
     
 class InitialNotesInput(BaseModel):
     notes: list[NoteInput]
+    
 
 # test endpoint
 @app.get("/")
