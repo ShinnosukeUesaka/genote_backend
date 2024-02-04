@@ -37,13 +37,13 @@ def get_notes_most_relevant(query_string: str, top_k: int = 3) -> list[str]:
     return note_ids
 
 def add_notes_to_rag(notes: list[dict]):
-    nodes = [TextNode(text=note["data"]["content"], id_=note["id"]) for note in notes]
+    nodes = [TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"]) for note in notes]
     index = VectorStoreIndex(
         nodes, storage_context=storage_context
     )
 
 def update_note_to_rag(note: dict):
-    node = TextNode(text=note["data"]["content"], id_=note["id"])
+    node = TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"])
     index = VectorStoreIndex.from_vector_store(vector_store=astra_db_store)
     index._delete_node(note["id"])
     index = VectorStoreIndex(
