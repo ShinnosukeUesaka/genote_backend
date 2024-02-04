@@ -14,6 +14,7 @@ from tempfile import TemporaryDirectory
 
 import os
 import datetime
+import re
 
 from genote_llm.firebase_utils import db, bucket
 from genote_llm.rag import add_notes_to_rag, get_notes_most_relevant, update_note_to_rag
@@ -130,6 +131,20 @@ def add_notes(user_id: str, draft_input: DraftInput):
     note_ids = get_notes_most_relevant(draft, top_k=5)
     notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream if note.id in note_ids]
     actions = create_actions(draft, notes)
+    for index, action in enumerate(actions):
+        # search for [title], then replace with [title](id), id is the firebase id of the note
+        content = action["content"]
+        # search [title] in the content
+        titles = re.findall(r'\[.*?\]', content) # titles is 
+        for title in titles:
+            title_text = title[1:-1]
+            note = next((note for note in notes if note["data"]["title"] == title_text), None)
+            if note:
+                content = content.replace(title, f"{title}({note['id']})")
+        actions[index]["content"] = content
+             
+         
+    
     for action in actions:
         if action["method"] == "edit":
             note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
