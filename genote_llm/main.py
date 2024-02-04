@@ -82,6 +82,33 @@ def add_notes(user_id: str, note_input: NoteInput):
     note = db.collection("users").document(user_id).collection("notes").add({"title": note_input.title, "content": note_input.content})
     return note[1].id
 
+def get_notes_in_order(user_id: str):
+    notes_stream = db.collection("users").document(user_id).collection("notes").order_by("order").stream()
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
+    notes_in_oder = []
+    
+    for note in notes:
+        if note["data"]["status"] == "added":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    
+    for note in notes:
+        if note["data"]["status"] == "edited":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    
+    for note in notes:
+        if note["data"]["status"] == "reviewed":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    return notes_in_oder
+
+@app.post("/users/{user_id}/notes/{note_id}/review")
+def review_notes(user_id: str, note_id: str):
+    note = db.collection("users").document(user_id).collection("notes").document(note_id)
+    note.update({"status": "reviewed"})
+    return get_notes_in_order(user_id)
+
 @app.get("/users/{user_id}/notes/{note_id}")
 def read_notes(user_id: str, note_id: str):
     note = db.collection("users").document(user_id).collection("notes").document(note_id).get()
@@ -109,26 +136,7 @@ def add_notes(user_id: str, draft_input: DraftInput):
         else:
             print("Invalid action")
     
-    notes_stream = db.collection("users").document(user_id).collection("notes").order_by("order").stream()
-    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
-    notes_in_oder = []
-    
-    for note in notes:
-        if note["data"]["status"] == "added":
-            notes_in_oder.append(note)
-            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
-    
-    for note in notes:
-        if note["data"]["status"] == "edited":
-            notes_in_oder.append(note)
-            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
-    
-    for note in notes:
-        if note["data"]["status"] == "reviewed":
-            notes_in_oder.append(note)
-            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
-    
-    return notes_in_oder
+    return get_notes_in_order(user_id)
     
 
 
