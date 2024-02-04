@@ -154,8 +154,8 @@ def add_notes(user_id: str, draft_input: DraftInput):
                 add_notes_to_rag([{"id": note.id, "data": note.to_dict()}])
             else:
                 note = db.collection("users").document(user_id).collection("notes").document(note["id"])
-                note.update({"content": action["content"], "status": "edited", "order": -1})
-                update_note_to_rag({"id": note[1].id, "data": note[1].to_dict()})
+                note = note.update({"content": action["content"], "status": "edited", "order": -1})[1].get()
+                update_note_to_rag({"id": note.id, "data": note.to_dict()})
         elif action["method"] == "add":
             note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})[1].get()
             add_notes_to_rag([{"id": note.id, "data": note.to_dict()}])
