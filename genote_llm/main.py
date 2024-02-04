@@ -1,6 +1,6 @@
 import dotenv
 
-dotenv.load_dotenv('genote/.env', override=True)
+dotenv.load_dotenv('genote_llm/.env', override=True)
 from pathlib import Path
 from fastapi import FastAPI, Header
 from urllib.parse import urlencode
@@ -40,8 +40,6 @@ app.add_middleware(
 )
 
 
-class Message(BaseModel):
-    message: str
     
 class DraftInput(BaseModel):
     text: str
@@ -63,269 +61,166 @@ def read_notes(user_id: str, note_id: str):
 
 @app.post("/users/{user_id}/draft")
 def add_notes(user_id: str, draft_input: DraftInput):
-    draft = {
-        "text": draft_input.text,
-        "created_at": datetime.datetime.now()
-    }
-    db.collection("users").document(user_id).collection("drafts").add(draft)
-    return draft
-
-@app.post("/conversations")
-def create_conversation():
-    # create id
-    conversation_id = str(uuid.uuid4())
-    # create conversation
-    conversation = {
-        "id": conversation_id,
-        "created_at": datetime.datetime.now(),
-        "messages": [],
-    }
-    # save conversation
-    db.collection("conversations").document(conversation_id).set(conversation)
-    return conversation
-
-@app.post("/conversations/{conversation_id}/message")
-def create_message(conversation_id: str, message: Message):
-    # get conversation
-    message = message.message
-    conversation_ref = db.collection("conversations").document(conversation_id)
-    conversation = conversation_ref.get().to_dict()
-    conversation["messages"].append({"role": "user", "content": message})
-    past_messages = conversation["messages"]
-    # generate slides
-    result, actions = create_slides(past_messages)
-    conversation["messages"].append({"role": "assistant", "content": result})
-    conversation_ref.set(conversation)
-    return actions
+    # get all the notes of the user
+    draft = draft_input.text.strip()
+    notes_stream = db.collection("users").document(user_id).collection("notes").stream()
+    # Do RAG here.
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
+    actions = create_actions(draft, notes)
+    for action in actions:
+        if action["method"] == "edit":
+            note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
+            if not note:
+                print("Note not found creating new one.")
+                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "draft"})
+            else:
+                note = db.collection("users").document(user_id).collection("notes").document(note["id"])
+                note.update({"content": action["content"]})
+        else:
+            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"]})
 
 
+CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by either editing existing notes, creating notes.
 
-PROMPT = """You are an assistant that would provide information to the user in a presentation style. You are an assistant so you do not need any greeting.
+- If you are editing the current note, specify the title exactly as you see above.
+- If you are creating a new note, specify the title of the new note. Try to follow the naming convention of the existing notes.
+- Edit or add as many notes as necessary.
 
-Generate scripts and presentation slides based on the question of the user.
-
-Choose a template, and fill the information in the components.
-
-Each of the components in the slides have a component id. In the script, include the component id when the component needs to be displayed to the user. In the beginning, none of the components are rendered.
-Example of the script)
-[title, sub-title] I will explain the history of spaceships. [bullet-point-1]  The development of space ships started in....
-
-Other Instruction:
-For images on the slides, write 3 keywords. The keywords would be used to search an image online.
-Use variety of templates.
-
-Your answer must follow the following json format.
-
-
+Output must be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
 
 {
     "type": "object",
     "properties": {
-        "slides": {
+        "actions": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "template": {
-                        "anyOf": [
-                            {
-                                "properties": {
-                                    "template_id": {
-                                        "const": "first_slide"
-                                    },
-                                    "title": {
-                                        "type": "string",
-                                        "description": "id: title"
-                                    },
-                                    "sub_title": {
-                                        "type": "string",
-                                        "description": "id: sub_title"
-                                    },
-                                    "image": {
-                                        "type": "string",
-                                        "description": "Prompt for the image\nid: image\n"
-                                    }
-                                },
-                                "required": [
-                                    "template_id",
-                                    "title",
-                                    "sub_title",
-                                    "image"
-                                ]
-                            },
-                            {
-                                "properties": {
-                                    "template_id": {
-                                        "const": "three_elements"
-                                    },
-                                    "title": {
-                                        "type": "string",
-                                        "description": "id: title"
-                                    },
-                                    "elements": {
-                                        "type": "array",
-                                        "minItems": 3,
-                                        "maxItems": 3,
-                                        "description": "id: element_element_index. ex) element_1\ntitles and details would be displayed using this id.  index starts from 1",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "title": {
-                                                    "type": "string"
-                                                },
-                                                "details": {
-                                                    "type": "string",
-                                                    "description": "Two short sentences."
-                                                }
-                                                "image": {
-                                                    "type": "string",
-                                                    "description": "Prompt for the image\nid: image\n"
-                                                }
-                                            },
-                                            "required": [
-                                                "title",
-                                                "details",
-                                                "image"
-                                            ]
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "template_id",
-                                    "title",
-                                    "elements"
-                                ]
-                            },
-                            {
-                                "properties": {
-                                    "template_id": {
-                                        "const": "timeline"
-                                    },
-                                    "title": {
-                                        "type": "string",
-                                        "description": "id: title"
-                                    },
-                                    "elements": {
-                                        "type": "array",
-                                        "minItems": 3,
-                                        "maxItems": 3,
-                                        "description": "id: element_element_index. ex) element_1\ntitles and details would be displayed using this id. index starts from 1",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "title": {
-                                                    "type": "string"
-                                                },
-                                                "time": {
-                                                    "type": "string",
-                                                    "description": "ex. 2019"
-                                                },
-                                                "details": {
-                                                    "type": "string",
-                                                    "description": "Under 7 words"
-                                                }
-                                            },
-                                            "required": [
-                                                "title",
-                                                "time",
-                                                "details"
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        ],
-                        "type": "object"
+                    "method": { 
+                        "type": "string",
+                        "enum": ["edit", "add"]
                     },
-                    "script": {
+                    "title": {
                         "type": "string"
                     }
-                },
-                "required": [
-                    "template",
-                    "script"
-                ]
+                }
             }
         }
-    },
-    "required": [
-        "slides"
-    ]
+    }
+}
+"""
+
+ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by editing existing notes, and/or creating notes.
+
+- Edit or add as many notes as necessary.
+- Make sure you are correctly specifying the names of the titles.
+- Connect ideas by adding links to other notes with square brackets ex. [Title of the note] to connect and reference ideas.  Start by concisely explaining how ideas in the user's draft can be linked together in less than 2 sentences.
+- The link should be bidirectional , meaning both ideas should reference each other. Not just one.
+
+You output should be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
+{
+    "type": "object",
+    "properties": {
+        "link_explanation": {"type": "string"}
+        "actions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "method": { 
+                        "type": "string",
+                        "enum": ["edit", "add"]
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string",
+                        "format": "markdown",
+                        "description": "The full markdown containing added contents and original contents."
+                    }
+                }
+            }
+        }
+    }
 }"""
 
-def create_slides(past_messages: list = []):
+def create_actions(draft: str, notes: list[dict]):
+    titles_prompt = ""
+    for index, note in enumerate(notes):
+        titles_prompt += f"{index+1}. {note['title']}\n"
     
+    user_prompt = f"""[User's Draft]
+""
+{draft}
+""
+
+[Notes that are potentially relevant to the user's draft]
+{titles_prompt}
+"""
+    print(user_prompt) 
     response = client.chat.completions.create(
         model="gpt-4-1106-preview",
         response_format={ "type": "json_object" },
         messages=[
-            {"role": "system", "content": PROMPT},
-        ] + past_messages,
+            {"role": "system", "content": CHOOSE_NOTES_PROMPT},
+            {"role": "user", "content": user_prompt}
+        ],
         max_tokens=2000,
     )
     result = response.choices[0].message.content # this is json in string
-    # parse json 
     returned_dictionary =  json.loads(result)
+    print(returned_dictionary)
     
-    actions = []
-    for slide in returned_dictionary["slides"]:
-        if slide["template"]["template_id"] == "first_slide":
-            slide["template"]["image"] = generate_image(slide["template"]["image"])
-        elif slide["template"]["template_id"] == "three_elements":
-            for index, element in enumerate(slide["template"]["elements"]):
-                slide["template"]["elements"][index]["image"] = generate_image(element["image"])
+    notes_list_prompt = ""
+    current_notes_prompt = ""
+    for action in returned_dictionary["actions"]:
+        if action["method"] == "edit":
+            edit_note = next((note for note in notes if note["title"] == action["title"]), None)
+            if not edit_note:
+                print("Note not found creating new one.")
+                action["content"] = "add"
+                notes_list_prompt += f"- {action['title']} [Add]\n"
                 
-        actions.append(
-            {
-                "type": "show_slide",
-                "content": slide["template"]
-            }
-        )
-        # split script by [element-id]
-        script_elements = format_script(slide["script"])
-        for element in script_elements:
-            if isinstance(element, str):
-                actions.append(
-                    {
-                        "type": "play_audio",
-                        "content": {"url": create_tts(element)}
-                    }
-                )
             else:
-                # if there is , in the element, it means there are multiple elements, split
-                actions.append(
-                    {
-                        "type": "display_element",
-                        "content": {
-                            "ids": element
-                        }
-                    }
-                )
-    return result, actions
+                notes_list_prompt += f"- {action['title']} [Edit]\n"
+                current_notes_prompt += f"""{action['title']}
+""
+{edit_note['content']}
+""
 
-def format_script(input_text):
-    # Split the input text on markers, keeping the markers
-    parts = input_text.split('[')
-    formatted_output = []
+""" 
+        else:
+            notes_list_prompt += f"- {action['title']} [Add]\n"
+        
+    user_prompt = f"""[user's draft]
+""
+{draft}
+""
 
-    for part in parts:
-        if ']' in part:
-            marker, text = part.split(']', 1)
-            # Add the marker as a list
-            marker = marker.strip()
-            if "," in marker:
-                formatted_output.append(marker.split(","))
-            else:
-                formatted_output.append([marker.strip()])
-            # Add the text if it's not empty
-            text = text.strip()
-            if text:
-                formatted_output.append(text)
-        elif part:
-            # Add the part if it's not empty
-            formatted_output.append(part.strip())
+[Notes you can add or edit]
+{notes_list_prompt}
 
-    return formatted_output
+[Current data of the notes]
+{current_notes_prompt}
+"""
+    print(user_prompt)
+    response = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        response_format={ "type": "json_object" },
+        messages=[
+            {"role": "system", "content": ORGANIZE_NOTES_PROMPT},
+            {"role": "user", "content": user_prompt}
+        ],
+        max_tokens=2000,
+    )
+    result = response.choices[0].message.content # this is json in string
+    returned_dictionary =  json.loads(result)
+    print(returned_dictionary)
+    return returned_dictionary["actions"]
+
+
+        
 
 
 def generate_image(prompt: str):
@@ -375,3 +270,7 @@ def create_tts(text: str, voice: str = "Bill", model: str = "eleven_turbo_v2"):
         blob.make_public()
         url = blob.public_url
     return url
+
+
+if __name__ == "__main__":
+    print(create_actions("I went to school", [{"title": "Diary", "content": "I went to see a movie today"}]))

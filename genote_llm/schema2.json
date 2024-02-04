@@ -12,6 +12,11 @@
                     },
                     "title": {
                         "type": "string"
+                    },
+                    "content": {
+                        "type": "string",
+                        "format": "markdown",
+                        "description": "The full markdown containing added contents and original contents."
                     }
                 }
             }

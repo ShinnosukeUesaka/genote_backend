@@ -1,0 +1,129 @@
+{
+    "type": "object",
+    "properties": {
+        "slides": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "template": {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "template_id": {
+                                        "const": "first_slide"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "id: title"
+                                    },
+                                    "sub_title": {
+                                        "type": "string",
+                                        "description": "id: sub-title"
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "description": "Prompt for the image\nid: image\n"
+                                    }
+                                },
+                                "required": [
+                                    "template_id",
+                                    "title",
+                                    "sub_title",
+                                    "image"
+                                ]
+                            },
+                            {
+                                "properties": {
+                                    "template_id": {
+                                        "const": "three_elements"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "id: title"
+                                    },
+                                    "elements": {
+                                        "type": "array",
+                                        "minItems": 3,
+                                        "maxItems": 3,
+                                        "description": "id: element-element_index. ex) element-0\ntitles and details would be displayed using this id.",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "details": {
+                                                    "type": "string",
+                                                    "description": "Two short sentences."
+                                                }
+                                            },
+                                            "required": [
+                                                "title",
+                                                "details"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "template_id",
+                                    "title",
+                                    "elements"
+                                ]
+                            },
+                            {
+                                "properties": {
+                                    "template_id": {
+                                        "const": "timeline"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "id: title"
+                                    },
+                                    "elements": {
+                                        "type": "array",
+                                        "minItems": 3,
+                                        "maxItems": 3,
+                                        "description": "id: element-element_index. ex) element-0\ntitles and details would be displayed using this id.",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "description": "ex. 2019"
+                                                },
+                                                "details": {
+                                                    "type": "string",
+                                                    "description": "Under 7 words"
+                                                }
+                                            },
+                                            "required": [
+                                                "title",
+                                                "time",
+                                                "details"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "object"
+                    },
+                    "script": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "template",
+                    "script"
+                ]
+            }
+        }
+    },
+    "required": [
+        "slides"
+    ]
+}
