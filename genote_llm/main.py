@@ -80,14 +80,36 @@ def add_notes(user_id: str, draft_input: DraftInput):
             note = next((note for note in notes if note["data"]["title"] == action["title"]), None)
             if not note:
                 print("Note not found creating new one.")
-                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added"})
+                note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
             else:
                 note = db.collection("users").document(user_id).collection("notes").document(note["id"])
-                note.update({"content": action["content"], "status": "edited"})
+                note.update({"content": action["content"], "status": "edited", "order": -1})
         elif action["method"] == "add":
-            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added"})
+            note = db.collection("users").document(user_id).collection("notes").add({"title": action["title"], "content": action["content"], "status": "added", "order": -2})
         else:
             print("Invalid action")
+    
+    notes_stream = db.collection("users").document(user_id).collection("notes").order_by("order").stream()
+    notes = [{"id": note.id, "data": note.to_dict()} for note in notes_stream]
+    notes_in_oder = []
+    
+    for note in notes:
+        if note["data"]["status"] == "added":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    
+    for note in notes:
+        if note["data"]["status"] == "edited":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    
+    for note in notes:
+        if note["data"]["status"] == "original":
+            notes_in_oder.append(note)
+            db.collection("users").document(user_id).collection("notes").document(note["id"]).update({"order": len(notes_in_oder)})
+    
+    return notes_in_oder
+    
 
 
 CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by either editing existing notes, creating notes.
