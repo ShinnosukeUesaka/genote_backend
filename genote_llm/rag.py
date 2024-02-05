@@ -23,24 +23,30 @@ astra_db_store = AstraDBVectorStore(
 storage_context = StorageContext.from_defaults(vector_store=astra_db_store)
 
 def get_notes_most_relevant(query_string: str, top_k: int = 3) -> list[str]:
-    index = VectorStoreIndex.from_vector_store(vector_store=astra_db_store)
-    
-    retriever = index.as_retriever(
-        vector_store_query_mode="mmr",
-        similarity_top_k=top_k,
-    )
+    try:
+        index = VectorStoreIndex.from_vector_store(vector_store=astra_db_store)
+        
+        retriever = index.as_retriever(
+            vector_store_query_mode="mmr",
+            similarity_top_k=top_k,
+        )
 
-    nodes_with_scores = retriever.retrieve(query_string)
-    
-    note_ids = [node.node_id for node in nodes_with_scores]
+        nodes_with_scores = retriever.retrieve(query_string)
+        
+        note_ids = [node.node_id for node in nodes_with_scores]
+    except:
+        note_ids = []
 
     return note_ids
 
 def add_notes_to_rag(notes: list[dict]):
-    nodes = [TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"]) for note in notes]
-    index = VectorStoreIndex(
-        nodes, storage_context=storage_context
-    )
+    try:
+        nodes = [TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"]) for note in notes]
+        index = VectorStoreIndex(
+            nodes, storage_context=storage_context
+        )
+    except:
+        return
 
 def update_note_to_rag(note: dict):
     # node = TextNode(text=note["data"]["title"] + "\n\n" + note["data"]["content"], id_=note["id"])
