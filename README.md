@@ -4,7 +4,7 @@
 ### Demo
 https://genote.vercel.app/
 
-
+### Links
 - Backend: https://github.com/ShinnosukeUesaka/genote_backend
 - Frontend: Devpost: https://devpost.com/software/genote
 - Devpost: https://devpost.com/software/genote
