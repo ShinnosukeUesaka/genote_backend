@@ -14,13 +14,13 @@ import openai
 ASTRA_DB_APPLICATION_TOKEN = os.environ.get("ASTRA_DB_APPLICATION_TOKEN")
 ASTRA_DB_API_ENDPOINT = os.environ.get("ASTRA_DB_API_ENDPOINT")
 
-astra_db_store = AstraDBVectorStore(
-    token=ASTRA_DB_APPLICATION_TOKEN,
-    api_endpoint=ASTRA_DB_API_ENDPOINT,
-    collection_name="demo",
-    embedding_dimension=1536,
-)
-storage_context = StorageContext.from_defaults(vector_store=astra_db_store)
+# astra_db_store = AstraDBVectorStore(
+#     token=ASTRA_DB_APPLICATION_TOKEN,
+#     api_endpoint=ASTRA_DB_API_ENDPOINT,
+#     collection_name="demo",
+#     embedding_dimension=1536,
+# )
+# storage_context = StorageContext.from_defaults(vector_store=astra_db_store)
 
 def get_notes_most_relevant(query_string: str, top_k: int = 3) -> list[str]:
     return []
