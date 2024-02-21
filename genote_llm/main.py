@@ -196,6 +196,7 @@ CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts 
 - If you are editing the current note, specify the title exactly as you see above.
 - If you are creating a new note, specify the title of the new note. Try to follow the naming convention of the existing notes.
 - Edit or add as many notes as necessary.
+- You can reorganized the whole structure if that makes it more clean. However, do not remove any information.
 
 Output must be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
 
