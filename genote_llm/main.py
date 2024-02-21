@@ -60,6 +60,10 @@ class InitialNote(BaseModel):
 class InitialNotesInput(BaseModel):
     notes: list[InitialNote]
     
+    
+class LoginInput(BaseModel):
+    email: str
+    password: str
 
 # test endpoint
 @app.get("/")
@@ -78,6 +82,18 @@ def create_user(inital_notes_input: InitialNotesInput):
         notes.append({"id": note.id, "data": note.to_dict()})
     add_notes_to_rag(notes)
     return user_id
+
+@app.post("/login")
+def login_user(login_input: LoginInput):
+    # find user with field email == email, if it exists return the user_id, if not create a new user
+    users = db.collection("users").where("email", "==", login_input.email).get()
+    if len(users) == 0:
+        user_id = str(uuid.uuid4())
+        user_ref = db.collection("users").document(user_id)
+        user_ref.set({"created_at": datetime.datetime.now(), "email": login_input.email})
+        return user_id
+    else:
+        return users[0].id
 
 @app.get("/users/{user_id}/notes")
 def read_notes(user_id: str, skip: int = 0, limit: int = 10):
