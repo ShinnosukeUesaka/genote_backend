@@ -280,6 +280,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - You can reorganized the whole structure if that makes it more clean. However, do not remove any information.
 - Do not repeat the title in the note content.
 - Make use of Markdown and add headings and subheadings to organize the content.
+- Do not put the same content in two difference places. If the content is relevant to two different notes, then link the notes together.
 
 You output should be json that follows the following schema. Output should NOT be the schema itself, but the json object that follows the schema. Start with {"organization_explanation": "explanation here", "actions": [...
 {
