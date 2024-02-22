@@ -100,12 +100,12 @@ def read_notes(user_id: str, skip: int = 0, limit: int = 10):
 
     notes = db.collection("users").document(user_id).collection("notes").stream()
     return [{"id": note.id, "data": note.to_dict()} for note in notes]
-
+x
 @app.put("/users/{user_id}/notes/{note_id}")
 def update_notes(user_id: str, note_id: str, note_input: NoteInput):
     note = db.collection("users").document(user_id).collection("notes").document(note_id)
     note.update({"title": note_input.title, "content": note_input.content})
-    return note_id
+    return {"id": note_id, "data": note.to_dict()}
 
 @app.get("/users/{user_id}/notes/from-title/{title}")
 def read_notes(user_id: str, title: str):
