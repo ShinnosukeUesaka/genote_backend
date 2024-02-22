@@ -279,6 +279,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - Do not create new notes if it is not necessary. Ex. Coding tips should be in a single file. Each books should be new note (Linked to Book Notes), but not new notes for each chapter. Startup ideas should be a new note.
 - You can reorganized the whole structure if that makes it more clean. However, do not remove any information.
 - Do not repeat the title in the note content.
+- Make use of Markdown and add headings and subheadings to organize the content.
 
 You output should be json that follows the following schema. Output should NOT be the schema itself, but the json object that follows the schema. Start with {"organization_explanation": "explanation here", "actions": [...
 {
