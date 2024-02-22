@@ -70,6 +70,7 @@ class LoginInput(BaseModel):
 def read_root():
     return {"Hello": "World"}
 
+
 @app.post("/users")
 def create_user(inital_notes_input: InitialNotesInput):
     user_id = str(uuid.uuid4())
