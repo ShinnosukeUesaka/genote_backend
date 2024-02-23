@@ -18,12 +18,12 @@ jobs:
       - name: Set environment variables
         run: |
           if [[ "${{ github.ref }}" == 'refs/heads/dev' ]]; then
-            echo "PROJECT_ID=koto-gpts" >> $GITHUB_ENV
+            echo "PROJECT_ID=genote-415220" >> $GITHUB_ENV
             echo "GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}"
             echo "AR_REPO_NAME=dev-kotonohohack" >> $GITHUB_ENV
             echo "RUN_SERVICE_NAME=dev-konotohack" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == 'refs/heads/main' ]]; then
-            echo "PROJECT_ID=genote" >> $GITHUB_ENV
+            echo "PROJECT_ID=genote-415220" >> $GITHUB_ENV
             echo "GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}"
             echo "AR_REPO_NAME=prd-genote" >> $GITHUB_ENV
             echo "RUN_SERVICE_NAME=prd-genote" >> $GITHUB_ENV
