@@ -202,35 +202,35 @@ def add_notes(user_id: str, draft_input: DraftInput):
     
 
 
-CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by either editing existing notes, creating notes.
+# CHOOSE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by either editing existing notes, creating notes.
 
-- If you are editing the current note, specify the title exactly as you see above.
-- If you are creating a new note, specify the title of the new note. Try to follow the naming convention of the existing notes.
-- Edit or add as many notes as necessary.
+# - If you are editing the current note, specify the title exactly as you see above.
+# - If you are creating a new note, specify the title of the new note. Try to follow the naming convention of the existing notes.
+# - Edit or add as many notes as necessary.
 
-Output must be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
+# Output must be json that follows the following schema. Output should not be the schema itself, but the json object that follows the schema.
 
-{
-    "type": "object",
-    "properties": {
-        "actions": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "method": { 
-                        "type": "string",
-                        "enum": ["edit", "add"]
-                    },
-                    "title": {
-                        "type": "string"
-                    }
-                }
-            }
-        }
-    }
-}
-"""
+# {
+#     "type": "object",
+#     "properties": {
+#         "actions": {
+#             "type": "array",
+#             "items": {
+#                 "type": "object",
+#                 "properties": {
+#                     "method": { 
+#                         "type": "string",
+#                         "enum": ["edit", "add"]
+#                     },
+#                     "title": {
+#                         "type": "string"
+#                     }
+#                 }
+#             }
+#         }
+#     }
+# }
+# """
 
 # ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by editing existing notes, and/or creating notes.
 
@@ -278,7 +278,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - You should format and cleanup the user's draft, or make it whole sentence. However do not add too much additional information.
 - Do not create new notes if it is not necessary. Ex. Coding tips should be in a single file. Each books should be new note (Linked to Book Notes), but not new notes for each chapter. Startup ideas should be a new note.
 - You can reorganized the whole structure if that makes it more clean. However, do not remove any information.
-- Do not repeat the title in the note content.
+- Do not repeat the title in the note content. It is reduendant. The content should be the continuation of the title.
 - Make use of Markdown and add headings and subheadings to organize the content.
 - Do not put the same content in two difference places. If the content is relevant to two different notes, then link the notes together.
 
