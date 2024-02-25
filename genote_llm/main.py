@@ -87,7 +87,9 @@ def create_user(inital_notes_input: InitialNotesInput):
 @app.post("/login")
 def login_user(login_input: LoginInput):
     # find user with field email == email, if it exists return the user_id, if not create a new user
+    print("logging in")
     users = db.collection("users").where("email", "==", login_input.email).get()
+    print("user searched")
     if len(users) == 0:
         user_id = str(uuid.uuid4())
         user_ref = db.collection("users").document(user_id)
