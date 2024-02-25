@@ -20,4 +20,4 @@ RUN poetry install --no-root
 
 COPY ./genote_llm ./genote_llm
 
-CMD exec uvicorn genote_llm.main:app --host 0.0.0.0 --port ${PORT} --workers 1
+CMD ["uvicorn", "genote_llm.main:app", "--host", "0.0.0.0", "--port", "8080"]
