@@ -18,6 +18,7 @@ Genote aims to solve this problem using RAG and LLM. It allows you to dump all y
 
 ## Prompt
 
+```
 "You are a smart assistant that organizes user's drafts into organized notes. Save the user's draft by editing existing notes, and/or creating notes.
 
 - Edit or add as many notes as necessary.
@@ -59,3 +60,4 @@ You output should be json that follows the following schema. Output should NOT b
         }
     }
 }
+```
