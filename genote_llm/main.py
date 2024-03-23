@@ -93,6 +93,11 @@ def login_user(login_input: LoginInput):
     if len(users) == 0:
         user_id = str(uuid.uuid4())
         user_ref = db.collection("users").document(user_id)
+        # read json from initial_notes.json
+        initial_notes = json.load(open("genote_llm/initial_notes.json"))
+        initial_notes = [InitialNote(**note) for note in initial_notes]
+        for note in initial_notes:
+            note = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})[1].get()
         user_ref.set({"created_at": datetime.datetime.now(), "email": login_input.email})
         return user_id
     else:

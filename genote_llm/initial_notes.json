@@ -1,0 +1,26 @@
+{
+    "notes": [
+        {
+            "title": "Book Notes",
+            "content": "- [Homo Deus]()\n- [Harry Potter]()",
+            "order": 1
+        },
+        {
+            "title": "Coding Tips",
+            "content": "## Python\n- use # to comment\n## JavaScript\n- Comment out using // ",
+            "order": 2
+        },
+        {
+            "title": "Homo Deus",
+            "content": "Author: Yuval Noah Harari\n\n### Chapter 1\n## Homo Deus - Chapter 1 Summary\n\n- **The New Human Agenda**: Discusses humanity's quest for immortality, happiness, and divinity, outlining the potential future developments in biotechnology and artificial intelligence. 🌐\n- **The Anthropocene Era**: Highlights the impact of human activity on the Earth, marking a new geological era defined by human dominance over the planet. 🌍\n- **Dataism**: Introduces the concept of Dataism, a new possible framework of understanding the universe through data analysis. 💾",
+            "order": 5
+        },
+        {
+            "title":"Harry Potter",
+            "content": "Author: J. K. Rowling \n\n Harry Potter is a series of seven fantasy novels written by British author J. K. Rowling. The novels chronicle the lives of a young wizard, Harry Potter, and his friends Hermione Granger and Ron Weasley, all of whom are students at Hogwarts School of Witchcraft and Wizardry",
+            "order": 6
+        }
+
+
+    ] 
+}
