@@ -94,7 +94,7 @@ def login_user(login_input: LoginInput):
         user_id = str(uuid.uuid4())
         user_ref = db.collection("users").document(user_id)
         # read json from initial_notes.json
-        initial_notes = json.load(open("genote_llm/initial_notes.json"))
+        initial_notes = json.load(open("genote_llm/initial_notes.json"))["notes"]
         initial_notes = [InitialNote(title=note["title"], content=note["content"], order=note["order"]) for note in initial_notes]
         for note in initial_notes:
             note = user_ref.collection("notes").add({"title": note.title, "content": note.content, "status": "reviewed", "order": note.order})[1].get()
