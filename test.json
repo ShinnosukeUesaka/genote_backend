@@ -1,0 +1,31 @@
+{
+
+    "questions": [
+        {
+            "timestamp": "10:30",
+            "question": {
+                "type": "multiple_choice",
+                "question": "What is GPU",
+                "options": [
+                    "Graphics Processing Unit",
+                    "General Processing Unit",
+                    "Graphics Processor Unit",
+                    "General Processor Unit"
+                ],
+                "answer": "Graphics Processing Unit",
+                "question_video_url": "https://www.youtube.com/watch?v=HieCv1fXg3A",
+                "wrong_answer_video_url": "https://www.youtube.com/watch?v=HieCv1fXg3A",
+                "correct_answer_video_url": "https://www.youtube.com/watch?v=HieCv1fXg3A"
+            }
+        },
+        {
+            "timestamp": "10:30",
+            "question": {
+                "type": "free_text",
+                "question": "What is CPU",
+                "question_video_url": "https://www.youtube.com/watch?v=HieCv1fXg3A"
+            }
+        }
+    ]
+
+}
