@@ -283,7 +283,7 @@ ORGANIZE_NOTES_PROMPT = """You are a smart assistant that organizes user's draft
 - Make sure to add new lines with backslash n in the markdown.
 - Start with explaining your organization strategy. For each of the thoughts, explain if you are going to create a new note and/or edit existing notes. Include where to add backlinks.
 - You should format and cleanup the user's draft, or make it whole sentence. However do not add too much additional information.
-- Do not create new notes if it is not necessary. Ex. Coding tips should be in a single file. Each books should be new note (Linked to Book Notes), but not new notes for each chapter. Startup ideas should be a new note.
+- Do not create new notes if it is not necessary. Ex. Coding tips should be in a single file. Each books should be new note (Linked to Book Notes), but not new notes for each chapter.
 - You can reorganized the whole structure if that makes it more clean. However, do not remove any information.
 - Do not repeat the title in the note content. It is reduendant. The content should be the continuation of the title.
 - Make use of Markdown and add headings and subheadings to organize the content.
