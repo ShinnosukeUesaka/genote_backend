@@ -4,6 +4,11 @@
 ### Demo
 https://genote.vercel.app/
 
+https://github.com/ShinnosukeUesaka/genote_backend/assets/45286939/dd882f3e-fd0a-4f6c-8c91-d606ee473b78
+
+
+
+
 ### Links
 - Backend: https://github.com/ShinnosukeUesaka/genote_backend
 - Frontend: https://github.com/tsengtinghan/genote
